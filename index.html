@@ -14,19 +14,34 @@
   <script>
     // creating scene
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color('black') // formats hexadecimal - 'rgb(28, 100, 70)' - names 'red' 'tomato'
-    scene.fog = new THREE.Fog(0x76456e, 0.1, 8) 
+    // scene.background = new THREE.Color('black') // formats hexadecimal - 'rgb(28, 100, 70)' - names 'red' 'tomato'
+    // scene.fog = new THREE.Fog(0x76456e, 0.1, 8) 
 
-    const loader = new THREE.TextureLoader()
-    loader.load('./imgTexture.jpg', (texture) => {
-      scene.background = texture
-    })
+    // const loader = new THREE.TextureLoader()
+    // loader.load('./imgTexture.jpg', (texture) => {
+    //   scene.background = texture
+    // })
 
-    // creating camera
+    // creating camera - camera types: Perspective | Orthographic
+    // Frustum : se utiliza para determinar qué hay dentro del campo de visión de la cámara.
+    // Perspective: THREE.PerspectiveCamera(fov (field of view, campo de vision de la camara), aspect (es definido width / height), near (distancia entre la camara y el plano mas cercano), far (campo de vision o distancia entre la camara y el plano))
+    // Orthographic: THREE.OrthographicCamera(left, right, top, bottom, near, far)
+    // x derecha positivo, y arriba positivo, y hacia la pantalla
     const camera = new THREE.PerspectiveCamera(
       75,
-      window.innerWidth / window.innerHeight
+      window.innerWidth / window.innerHeight,
+      0.1,
+      2000
     )
+    const cameraSupport = new THREE.PerspectiveCamera( // creamos una camara de soporte que mira el cubo y la camara principal mira esta camara de soporte
+      75,
+      window.innerWidth / window.innerHeight,
+      3,
+      10
+    )
+    // const cameraSupport = new THREE.OrthographicCamera(5, -5, 5, -5, 3, 10);
+    const helper = new THREE.CameraHelper(cameraSupport) 
+    scene.add(helper)
 
     // renderer
     const renderer = new THREE.WebGLRenderer()
@@ -35,17 +50,21 @@
 
     // add geometry
     const geometry = new THREE.BoxGeometry()
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: false })
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
     const cube = new THREE.Mesh(geometry, material)
-
+    cube.position.z = -5
     scene.add(cube)
-    camera.position.z = 5
 
     // animation
-    const animate = (x) => {
+    let i = 0
+    const animate = () => {
       requestAnimationFrame(animate)
-      cube.rotation.x += 0.01
-      cube.rotation.y += 0.01
+      camera.lookAt(cameraSupport.position)
+      camera.position.x = Math.cos(i) * 30
+      camera.position.z = Math.sin(i) * 30
+      i += 0.01
+      // cube.rotation.x += 0.01
+      // cube.rotation.y += 0.01
       renderer.render(scene, camera)
     }
     animate()
