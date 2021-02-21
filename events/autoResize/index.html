@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { margin: 0; }
+  </style>
+  <title>Hello cube</title>
+</head>
+<body>
+  <script type="module" >
+    import * as THREE from '../three.module.js'
+    import { OrbitControls } from '../OrbitControls.js'
+
+    // creating scene
+    const scene = new THREE.Scene()
+    scene.background = new THREE.Color(0x2a3b4c)
+
+    // creating camera
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight
+    )
+
+    // renderer
+    const renderer = new THREE.WebGLRenderer()
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    document.body.appendChild(renderer.domElement)
+
+    // add geometry
+    const geometry = new THREE.BoxGeometry()
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
+    const cube = new THREE.Mesh(geometry, material)
+
+    scene.add(cube)
+    camera.position.z = 5
+
+    // recibe como paramatros, la camara y el domElement para detectar los eventos | ya estarian habilitados poder mover la camara
+    const controls = new OrbitControls(camera, renderer.domElement)
+    controls.minDistance = 3 // define el minimo que me puedo acercar
+    controls.maxDistance = 8 // define el maximo que me puedo acercar
+    controls.enableZoom = true // activa o desactiva el zoom
+    controls.enableRotate = true // activa o desactiva la rotacion
+    controls.enableDamping = true // activa o desactiva factor de inercia
+    controls.dampingFactor = 0.5
+    controls.maxPolarAngle = Math.PI // valor max de rotacion defecto PI
+    controls.screenSpacePanning = true // define el poder movernos de forma horizontal y vertical
+
+
+    const resizeRender = () => {
+      camera.aspect = window.innerWidth / window.innerHeight
+      camera.updateProjectionMatrix()
+      renderer.setSize(window.innerWidth, window.innerHeight)
+      renderer.render(scene, camera)
+    }
+    window.addEventListener('resize', resizeRender)
+
+    // animation
+    const animate = (x) => {
+      requestAnimationFrame(animate)
+      // cube.rotation.x += 0.01
+      // cube.rotation.y += 0.01
+      renderer.render(scene, camera)
+    }
+    animate()
+  </script>
+</body>
+</html>
