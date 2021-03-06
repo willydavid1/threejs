@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { margin: 0; }
+  </style>
+  <title>Geometries</title>
+</head>
+<body>
+  <script type="module" >
+    import * as THREE from '../../three.module.js'
+    import { OrbitControls } from '../../OrbitControls.js'
+
+    // creating scene
+    const scene = new THREE.Scene()
+    scene.background = new THREE.Color(0x2a3b4c)
+
+    // creating camera
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight
+    )
+    camera.position.z = 15
+
+    // renderer
+    const renderer = new THREE.WebGLRenderer()
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    document.body.appendChild(renderer.domElement)
+
+    // add geometry
+    let geometries = []
+    const generateGeometry = (type = 'cube', positionX = 0, positionY = 0) => {
+      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
+      let geometry
+      switch (type) {
+        case 'cube':
+          geometry = new THREE.BoxGeometry(2, 2, 2, 5, 5, 5) // ancho, alto, profundidad, division de segmentos radiales ancho, alto, profundidad
+          break
+        case 'circle':
+          geometry = new THREE.CircleGeometry(2, 32, 0, Math.PI)
+          break
+        case 'cone':
+          geometry = new THREE.ConeGeometry(1, 3, 32, 5, false, 0, Math.PI)
+          break
+        case 'cylinder':
+          geometry = new THREE.CylinderGeometry(0.5, 0.5, 3, 32, 10, false) // radio inferior, superior, alto, segmentos radiales, segmentos por altura, hueco, donde comienza y termina
+          break
+        case 'plane':
+          geometry = new THREE.PlaneGeometry(2, 2, 3 ,5 ) // ancho, alto, segmentos radiales
+          break
+        case 'tetrahedron':
+          geometry = new THREE.TetrahedronGeometry(2, 0) // tamaño, vertices
+          break
+        case 'sphere':
+          geometry = new THREE.SphereGeometry(2, 32, 32, 0, Math.PI * 2, 0, Math.PI * 2) // radio, segmentos, segmentos altura, angulo donde comienza y donde termina (altura), angulo donde comienza y donde termina (polo a polo)
+          break
+        case 'torus':
+          geometry = new THREE.TorusGeometry(2, 1, 32, 32, Math.PI) // Radio, Radio, segmentos radiales
+          break
+        case 'ring':
+          geometry = new THREE.RingGeometry(0.3, 1.5, 32, 5, 0, Math.PI)
+          break
+        default:
+          return null
+      }
+      const mesh = new THREE.Mesh(geometry, material)
+      mesh.position.x = positionX
+      mesh.position.y = positionY
+      return mesh
+    }
+
+    geometries.push(
+      generateGeometry('cube'),
+      generateGeometry('circle', 5),
+      generateGeometry('cone', -5),
+      generateGeometry('cylinder', 0, 5),
+      generateGeometry('plane', 0, -5),
+      generateGeometry('tetrahedron', -5, 5),
+      generateGeometry('sphere', 5, 5),
+      generateGeometry('torus', -5, -5),
+      generateGeometry('ring', 5, -5)
+    )
+    scene.add(...geometries)
+
+    // recibe como paramatros, la camara y el domElement para detectar los eventos | ya estarian habilitados poder mover la camara
+    const controls = new OrbitControls(camera, renderer.domElement)
+    controls.minDistance = 3 // define el minimo que me puedo acercar
+    controls.maxDistance = 12 // define el maximo que me puedo acercar
+    controls.enableZoom = true // activa o desactiva el zoom
+    controls.enableRotate = true // activa o desactiva la rotacion
+    controls.enableDamping = true // activa o desactiva factor de inercia
+    controls.dampingFactor = 0.5
+    controls.maxPolarAngle = Math.PI // valor max de rotacion defecto PI
+    controls.screenSpacePanning = true // define el poder movernos de forma horizontal y vertical
+
+
+    const resizeRender = () => {
+      camera.aspect = window.innerWidth / window.innerHeight
+      camera.updateProjectionMatrix()
+      renderer.setSize(window.innerWidth, window.innerHeight)
+      renderer.render(scene, camera)
+    }
+    window.addEventListener('resize', resizeRender)
+
+    // animation
+    const animate = (x) => {
+      requestAnimationFrame(animate)
+      // traverse itera los elementos de la escena
+      scene.traverse((objScene) => {
+        if (objScene.isMesh) {
+          objScene.rotation.x += 0.01
+          objScene.rotation.y += 0.01
+        }
+      })
+      renderer.render(scene, camera)
+    }
+    animate()
+  </script>
+</body>
+</html>
